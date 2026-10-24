@@ -1,9 +1,9 @@
 //loads express + node's path tools
 const express = require('express');
-const port = require("path");
+const path = require("path");
 const app = express();
 
-//loads path and shows json data in the console
+//sends json response to the /api/hello endpoint
 app.get("/api/hello", (req, res) => {
   res.json({ message: "server works!" });
 });
