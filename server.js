@@ -4,6 +4,7 @@ const express = require('express');
 const path = require("path");
 const app = express();
 
+app.use(express.json());
 //sends json response to the /api/hello endpoint
 app.get("/api/hello", (req, res) => {
   res.json({ message: "server works!" });
@@ -63,6 +64,31 @@ app.get("/api/movies", async (req, res) => {
     catch (error) {
         console.error(error);
         res.status(500).json({ error: "An error occurred while fetching movies." });
+    }
+});
+
+app.post("api/recommendations", async (req, res) => {
+    try {
+        const prompt = req.body.prompt;
+        const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-goog-api-key": process.env.GEMINI_KEY,
+                },
+                body: JSON.stringify({
+                    contents: [{ parts: [{text: prompt}] }],
+                }),
+            }
+        );
+        const data = await response.json();
+
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        res.json({ text: text, raw: text ? undefined : data });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "An error occurred while fetching recommendations." });
     }
 });
 
