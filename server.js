@@ -67,7 +67,7 @@ app.get("/api/movies", async (req, res) => {
     }
 });
 
-app.post("api/recommendations", async (req, res) => {
+app.post("/api/recommendations", async (req, res) => {
     try {
         const prompt = req.body.prompt;
         const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent",
