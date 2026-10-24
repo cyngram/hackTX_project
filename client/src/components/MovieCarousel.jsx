@@ -1,19 +1,21 @@
 import { Swiper, SwiperSlide } from 'swiper/react'
+import { useState, useEffect } from 'react'
+import fakeMovies from '../data/fakeMovies'
 import { EffectCoverflow } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/effect-coverflow'
 import './MovieCarousel.css'
 
-const movies = [
-  { id: 1, title: 'Movie One', poster: 'https://picsum.photos/seed/cinematch1/300/450' },
-  { id: 2, title: 'Movie Two', poster: 'https://picsum.photos/seed/cinematch2/300/450' },
-  { id: 3, title: 'Movie Three', poster: 'https://picsum.photos/seed/cinematch3/300/450' },
-  { id: 4, title: 'Movie Four', poster: 'https://picsum.photos/seed/cinematch4/300/450' },
-  { id: 5, title: 'Movie Five', poster: 'https://picsum.photos/seed/cinematch5/300/450' },
-  { id: 6, title: 'Movie Six', poster: 'https://picsum.photos/seed/cinematch6/300/450' },
-]
-
 function MovieCarousel() {
+  const [movies, setMovies] = useState(fakeMovies)
+  useEffect(() => {
+    fetch('/api/movies')
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setMovies(data)
+      })
+      .catch(() => {})
+  }, [])
   return (
     <div className="movie-carousel">
       <Swiper
