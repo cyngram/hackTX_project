@@ -23,3 +23,33 @@
     width: 140px;
   }
 }
+
+.poster-card { cursor: pointer; }
+
+.detail-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: detailFade 0.3s ease;
+}
+
+.detail-box {
+  display: flex;
+  width: 800px;
+  max-width: 90vw;
+  height: 500px;
+  background: #1e1e1e;
+  color: white;
+  border-radius: 16px;
+  overflow: hidden;
+  animation: detailPop 0.35s ease;
+}
+
+.poster-card:hover {
+  transform: translateZ(60px) scale(1.1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+}
