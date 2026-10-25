@@ -21,12 +21,20 @@ function HomePage() {
       .catch((err) => console.warn('Using sample movies:', err.message))
   }, [])
 
-  return (
+    return (
     <main className="home-page">
+      <section className="home-hero">
+        <h1>Can't decide what to watch?</h1>
+        <p>Tell Poppy your mood and get movie picks made just for you.</p>
+      </section>
+
       <RecBox />
-      {/* teammates: hero heading, description and buttons go here */}
-      {/* key makes Swiper rebuild cleanly when real movies arrive */}
-      <MovieCarousel key={source} movies={movies} />
+
+      <section className="home-trending">
+        <h2>Trending this week</h2>
+        {/* key makes Swiper rebuild cleanly when real movies arrive */}
+        <MovieCarousel key={source} movies={movies} />
+      </section>
     </main>
   )
 }
