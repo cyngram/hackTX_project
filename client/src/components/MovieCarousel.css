@@ -1,9 +1,4 @@
-.movie-carousel {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 60px 0;
-  background: #0f1226;
-}
+
 
 .movie-carousel .swiper-slide {
   width: 220px;
