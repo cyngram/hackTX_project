@@ -217,7 +217,7 @@ app.get("/api/showtimes", async (req, res) => {
 
   const params = new URLSearchParams({
     engine: "google",
-    q: `${title} showtimes`,
+    q: `${title} theater`, // SerpApi docs use "<movie> theater" to get the showtimes box
     location: "Austin, Texas, United States",
     hl: "en",
     gl: "us",
@@ -228,10 +228,11 @@ app.get("/api/showtimes", async (req, res) => {
   });
   const data = await response.json();
   if (data.error) throw new Error("SerpApi: " + data.error);
+  if (!data.showtimes) console.log(`No showtimes box for "${title}". SerpApi sent:`, Object.keys(data));
 
   // reshape: each day → theaters → flat list of times
   const days = (data.showtimes || []).map((d) => ({
-    day: d.day,
+    day: [d.day, d.date].filter(Boolean).join(" "), // "Today Oct 25"
     theaters: (d.theaters || []).map((t) => ({
       name: t.name,
       address: t.address || "",
@@ -243,7 +244,7 @@ app.get("/api/showtimes", async (req, res) => {
     })),
   }));
 
-  showtimeCache.set(key, { at: Date.now(), data: days });
+  if (days.length) showtimeCache.set(key, { at: Date.now(), data: days }); // don't cache empty results
   res.json(days);
 });
 

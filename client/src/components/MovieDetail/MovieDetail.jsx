@@ -55,12 +55,14 @@ function MovieDetail({ movie, onClose }) {
       .catch(() => setShowtimeStatus('error'))
   }
 
-  const streamList = providers?.stream?.length
-    ? providers.stream
+  // show streaming first, then rent, then buy
+  const [streamLabel, streamList] = providers?.stream?.length
+    ? ['Stream on', providers.stream]
     : providers?.rent?.length
-      ? providers.rent
-      : []
-  const streamLabel = providers?.stream?.length ? 'Stream on' : 'Rent on'
+      ? ['Rent on', providers.rent]
+      : providers?.buy?.length
+        ? ['Buy on', providers.buy]
+        : ['', []]
   const day = showtimes?.[dayIndex]
 
   const { hasMovie, toggleMovie, isFavorite, toggleFavorite, isSaved, toggleSaved } =
@@ -140,6 +142,13 @@ function MovieDetail({ movie, onClose }) {
                 ))}
               </div>
             </div>
+          )}
+
+          {/* loaded but no services → say so, so it doesn't look broken */}
+          {providers && streamList.length === 0 && (
+            <p className="detail-stars">
+              {isInTheaters(movie) ? 'Not streaming yet. Catch it in theaters!' : 'Not streaming in the US right now.'}
+            </p>
           )}
 
           {/* showtimes for newer movies */}
