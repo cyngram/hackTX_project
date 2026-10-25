@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import MovieCarousel from '../components/MovieCarousel'
-import BrowseAllButton from '../components/BrowseAllButton'
+import MovieCarousel from '../components/MovieCarousel/MovieCarousel'
+import BrowseAllButton from '../components/BrowseAllButton/BrowseAllButton'
 import { trendingMovies } from '../data/sampleData'
 import { fetchMovies } from '../api/movies'
 import RecBox from '../components/RecBox/RecBox'

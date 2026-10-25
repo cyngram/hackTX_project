@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import MovieCarousel from '../components/MovieCarousel'
+import MovieCarousel from '../components/MovieCarousel/MovieCarousel'
 import { genreRows } from '../data/sampleData'
 import { fetchMovies } from '../api/movies'
 import './BrowsePage.css'
