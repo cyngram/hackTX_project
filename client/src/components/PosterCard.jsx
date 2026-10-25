@@ -21,12 +21,16 @@ function PosterCard({ movie }) {
         <div className="poster-face poster-back">
           <h3>{movie.title}</h3>
           <p className="poster-meta">Released {formatDate(movie.releaseDate)}</p>
-          <p className="poster-label">Starring</p>
-          <ul>
-            {movie.stars?.slice(0, 3).map((star) => (
-              <li key={star}>{star}</li>
-            ))}
-          </ul>
+          {movie.stars?.length > 0 && (
+            <>
+              <p className="poster-label">Starring</p>
+              <ul>
+                {movie.stars.slice(0, 3).map((star) => (
+                  <li key={star}>{star}</li>
+                ))}
+              </ul>
+            </>
+          )}
           {movie.platform && <span className="poster-platform">{movie.platform}</span>}
           <p className="poster-description">{movie.description}</p>
         </div>
