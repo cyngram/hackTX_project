@@ -33,7 +33,7 @@ function BrowsePage() {
       {rows.map((row) => (
         <section key={row.genre} className="genre-row">
           <h2>{row.genre}</h2>
-          <MovieCarousel key={source} movies={row.movies} autoplay={false} />
+          <MovieCarousel key={source} movies={row.movies} />
         </section>
       ))}
     </main>

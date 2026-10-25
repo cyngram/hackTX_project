@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { EffectCoverflow, Autoplay } from 'swiper/modules'
+import { EffectCoverflow } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/effect-coverflow'
 import PosterCard from './PosterCard'
@@ -24,25 +24,22 @@ function formatDate(dateString) {
   })
 }
 
-function MovieCarousel({ movies = [], autoplay = true }) {
+function MovieCarousel({ movies = [] }) {
   const [selected, setSelected] = useState(null)
-  const [swiper, setSwiper] = useState(null)
 
   function openMovie(movie) {
     setSelected(movie)
-    if (autoplay) swiper?.autoplay.stop()
   }
 
   function closeMovie() {
     setSelected(null)
-    if (autoplay) swiper?.autoplay.start()
   }
 
   return (
     <>
       <div className="movie-carousel">
         <Swiper
-          modules={[EffectCoverflow, Autoplay]}
+          modules={[EffectCoverflow]}
           effect="coverflow"
           coverflowEffect={COVERFLOW}
           grabCursor
@@ -51,12 +48,6 @@ function MovieCarousel({ movies = [], autoplay = true }) {
           loop
           loopAdditionalSlides={2}
           speed={1000}
-          onSwiper={setSwiper}
-          autoplay={
-            autoplay
-              ? { delay: 2500, disableOnInteraction: false, pauseOnMouseEnter: true }
-              : false
-          }
         >
           {movies.map((movie) => (
             <SwiperSlide key={movie.id} onClick={() => openMovie(movie)}>
