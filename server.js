@@ -67,29 +67,93 @@ app.get("/api/movies", async (req, res) => {
     }
 });
 
-app.post("/api/recommendations", async (req, res) => {
-    try {
-        const prompt = req.body.prompt;
-        const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "x-goog-api-key": process.env.GEMINI_KEY,
-                },
-                body: JSON.stringify({
-                    contents: [{ parts: [{text: prompt}] }],
-                }),
-            }
-        );
-        const data = await response.json();
 
-        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        res.json({ text: text, raw: text ? undefined : data });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "An error occurred while fetching recommendations." });
+app.post("/api/recommendations", async (req, res) => {
+  const prompt = req.body.prompt;
+
+  // current day + time, so "what should I watch right now" makes sense and give recent data
+  const now = new Date().toLocaleString("en-US", {
+    weekday: "long",
+    hour: "numeric",
+    timeZone: "America/Chicago",
+  });
+
+  // our instructions to Gemini (the user's text goes inside)
+  const instructions = `You are a friendly movie recommender.
+It is currently ${now}.
+The user says: "${prompt}"
+
+Recommend 5 real, existing movies that fit their request.
+Reply ONLY with JSON in this exact shape:
+{
+  "message": "one or two friendly sentences introducing your picks",
+  "movies": [ { "title": "exact movie title", "year": 2016, "reason": "one short sentence" } ]
+}`;
+
+  // ---------- STEP 1: ask Gemini ----------
+  const geminiResponse = await fetch(
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-goog-api-key": process.env.GEMINI_KEY,
+      },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: instructions }] }],
+        generationConfig: { responseMimeType: "application/json" }, // force JSON reply
+      }),
     }
+  );
+  const geminiData = await geminiResponse.json();
+
+  // dig Gemini's answer out of the response
+  const text = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) {
+    // no answer → hand it to the generic error handler
+    throw new Error("Gemini gave no answer: " + JSON.stringify(geminiData));
+  }
+
+  // Gemini's JSON arrives as text → turn it into a real object
+  const picks = JSON.parse(text); // { message, movies: [{ title, year, reason }] }
+
+  // ---------- STEP 2: look up each movie on TMDB ----------
+  // runs all searches parallel, so we don't wait for one to finish before starting the next
+  const found = await Promise.all(
+    picks.movies.map(async (pick) => {
+      const searchUrl =
+        `https://api.themoviedb.org/3/search/movie` +
+        `?query=${encodeURIComponent(pick.title)}` +
+        `&year=${pick.year || ""}` +
+        `&api_key=${process.env.TMDB_KEY}`;
+
+      const tmdbResponse = await fetch(searchUrl);
+      const tmdbData = await tmdbResponse.json();
+      const m = tmdbData.results?.[0]; // best match
+
+      if (!m) return null; // not found → probably made up → skip
+
+      // same team format as /api/movies, plus Gemini's reason
+      return {
+        id: m.id,
+        title: m.title,
+        year: m.release_date ? Number(m.release_date.slice(0, 4)) : null,
+        rating: Math.round(m.vote_average * 10) / 10,
+        genres: [],
+        streaming: [],
+        overview: m.overview,
+        poster: m.poster_path ? `https://image.tmdb.org/t/p/w500${m.poster_path}` : null,
+        trailer: null,
+        reason: pick.reason,
+      };
+    })
+  );
+
+  // remove any movies TMDB couldn't find
+  const movies = found.filter((movie) => movie !== null);
+
+  // ---------- STEP 3: send it back ----------
+  res.json({ message: picks.message, movies: movies });
 });
 
 //generic error handler for any unhandled errors
