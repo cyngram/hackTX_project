@@ -26,11 +26,11 @@ function MovieCarousel() {
         slidesPerView="auto"
         initialSlide={2}
         coverflowEffect={{
-          rotate: 50,
+          rotate: 30,
           stretch: 0,
           depth: 150,
           modifier: 1,
-          slideShadows: false,
+          slideShadows: true,
         }}
       >
         {movies.map((movie) => (
