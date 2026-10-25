@@ -47,12 +47,12 @@ function RecBox() {
       <form onSubmit={handleSubmit}>
         <input
           type="text"
-          placeholder="What do you feel like watching?"
+          placeholder="Need help choosing a film?"
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
         />
         <button type="submit" disabled={loading}>
-          {loading ? "Thinking..." : "Search"}
+          {loading ? "Thinking..." : "Get Picks"}
         </button>
       </form>
       {/* if something went wrong */}
