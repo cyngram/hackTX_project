@@ -47,7 +47,55 @@
   padding-right: 32px; /* room for the close button */
 }
 
-.detail-meta,
+.detail-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.detail-pill {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ddd;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.detail-pill.is-rating {
+  background: rgba(255, 215, 0, 0.15);
+  color: gold;
+  font-weight: 700;
+}
+
+.detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.detail-actions button {
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: transparent;
+  color: #fff;
+  font-family: system-ui, sans-serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.detail-actions button:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
+}
+
+.detail-actions button.is-on {
+  background: #aa3bff;
+  border-color: #aa3bff;
+}
+
 .detail-stars {
   color: #aaa;
   margin: 0;

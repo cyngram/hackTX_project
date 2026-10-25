@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
+import { useCollection } from '../../Context/CollectionsContext'
 import './MovieDetail.css'
 
 // Shared movie popup, used by MovieCarousel and RecBox.
@@ -24,12 +25,13 @@ function MovieDetail({ movie, onClose }) {
     return () => window.removeEventListener('keydown', handleKey)
   }, [onClose])
 
+  const { hasMovie, toggleMovie, isFavorite, toggleFavorite, isSaved, toggleSaved } =
+    useCollection()
+  const watched = hasMovie(movie.id)
+  const starred = isFavorite(movie.id)
+  const saved = isSaved(movie.id)
+
   const date = movie.releaseDate ? `Released ${formatDate(movie.releaseDate)}` : movie.year
-  const meta = [
-    date,
-    movie.rating ? `⭐ ${movie.rating}` : null,
-    movie.genres?.length ? movie.genres.join(', ') : null,
-  ].filter(Boolean)
 
   const platform = movie.platform || movie.streaming?.[0]
   const summary = movie.overview || movie.description
@@ -47,7 +49,38 @@ function MovieDetail({ movie, onClose }) {
           </button>
 
           <h2>{movie.title}</h2>
-          {meta.length > 0 && <p className="detail-meta">{meta.join(' · ')}</p>}
+          {/* small pills: rating, year/date, genres */}
+          <div className="detail-pills">
+            {movie.rating > 0 && <span className="detail-pill is-rating">★ {movie.rating}</span>}
+            {date && <span className="detail-pill">{date}</span>}
+            {movie.genres?.map((g) => (
+              <span key={g} className="detail-pill">{g}</span>
+            ))}
+          </div>
+
+          <div className="detail-actions">
+            <button
+              className={watched ? 'is-on' : ''}
+              onClick={() => toggleMovie(movie)}
+              aria-pressed={watched}
+            >
+              {watched ? '✓ Watched' : '+ Watched'}
+            </button>
+            <button
+              className={starred ? 'is-on' : ''}
+              onClick={() => toggleFavorite(movie)}
+              aria-pressed={starred}
+            >
+              {starred ? '★ Favorited' : '☆ Favorite'}
+            </button>
+            <button
+              className={saved ? 'is-on' : ''}
+              onClick={() => toggleSaved(movie)}
+              aria-pressed={saved}
+            >
+              {saved ? '🔖 Saved' : '🔖 Save for later'}
+            </button>
+          </div>
 
           {platform && <span className="detail-platform">{platform}</span>}
 

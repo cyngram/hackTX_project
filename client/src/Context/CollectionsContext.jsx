@@ -10,7 +10,7 @@ import {
 // one shared context object, even if Vite loads this file twice
 const CollectionContext = (globalThis.__collectionContext ??= createContext(null))
 const STORAGE_KEY = 'cinematch-profile'
-const EMPTY = { username: 'Movie Fan', collection: [], badges: {} }
+const EMPTY = { username: 'Movie Fan', collection: [], badges: {}, favorites: [], watchlist: [] }
 
 function loadProfile() {
   try {
@@ -19,6 +19,8 @@ function loadProfile() {
       username: saved?.username || EMPTY.username,
       collection: saved?.collection || [],
       badges: saved?.badges || {},
+      favorites: saved?.favorites || [],
+      watchlist: saved?.watchlist || [],
     }
   } catch {
     return EMPTY
@@ -79,6 +81,23 @@ export function CollectionProvider({ children }) {
     })
   }
 
+  // favorites ("star") and watchlist ("save for later") are simple on/off lists
+  const isFavorite = (id) => profile.favorites.some((m) => String(m.id) === String(id))
+  const isSaved = (id) => profile.watchlist.some((m) => String(m.id) === String(id))
+
+  function toggleList(listName, movie) {
+    setProfile((p) => {
+      const list = p[listName]
+      const exists = list.some((m) => String(m.id) === String(movie.id))
+      return {
+        ...p,
+        [listName]: exists
+          ? list.filter((m) => String(m.id) !== String(movie.id))
+          : [...list, movie],
+      }
+    })
+  }
+
   function setUsername(username) {
     setProfile((p) => ({ ...p, username }))
   }
@@ -94,6 +113,10 @@ export function CollectionProvider({ children }) {
     dismissNewBadge: () => setNewBadge(null),
     hasMovie,
     toggleMovie,
+    isFavorite,
+    isSaved,
+    toggleFavorite: (movie) => toggleList('favorites', movie),
+    toggleSaved: (movie) => toggleList('watchlist', movie),
     setUsername,
     resetProfile,
   }

@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Lobster+Two:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 :root {
-  --text: #6b6375;
-  --text-h: #151023;
+  --text: #fff;
+  --text-h: #bcb7c9;
   --bg: #fff;
   --border: #e5e4e7;
   --code-bg: #f4f3ec;
@@ -108,6 +108,7 @@ h2 {
 }
 p {
   margin: 0;
+  color: #fff;
 }
 
 code,
