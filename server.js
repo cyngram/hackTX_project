@@ -92,7 +92,7 @@ Reply ONLY with JSON in this exact shape:
 
   // ---------- STEP 1: ask Gemini ----------
   const geminiResponse = await fetch(
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent",
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent",
     {
       method: "POST",
       headers: {
@@ -159,7 +159,7 @@ Reply ONLY with JSON in this exact shape:
 //generic error handler for any unhandled errors
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ error: 'Something went wrong internally' });
+  res.status(500).json({ error: 'Something went wrong internally'});
 });
 
 //checks if file exists
