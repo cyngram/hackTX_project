@@ -7,20 +7,40 @@ function RecBox() {
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e) {
-    e.preventDefault();
-    if (!prompt.trim()) return; // ignore empty prompts
+  e.preventDefault();
+  if (!prompt.trim()) return; // ignore empty prompts
 
-    setLoading(true);
+  setLoading(true);
+  setReply(null); // clear the last answer
+
+  try {
     const res = await fetch("/api/recommendations", {
       method: "POST",
       signal: AbortSignal.timeout(20000),
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ prompt: prompt }),
     });
+
     const data = await res.json();
+
+    if (!res.ok) {
+      // server answered with an error (400, 500, etc.)
+      setReply({ error: data.error || "Something went wrong" });
+      return; 
+    }
+
     setReply(data);
+  } catch (err) {
+    // network failed, server is down, or it took longer than 20 seconds
+    console.error(err);
+    setReply({
+      error: err.name === "TimeoutError" ? "That took too long" : "Couldn't reach the server",
+    });
+  } finally {
+    // runs no matter what, so the button never gets stuck on "Thinking..."
     setLoading(false);
   }
+}
 
   return (
     <div className="rec-box">

@@ -3,6 +3,7 @@ import MovieCarousel from '../components/MovieCarousel'
 import BrowseAllButton from '../components/BrowseAllButton'
 import { trendingMovies } from '../data/sampleData'
 import { fetchMovies } from '../api/movies'
+import RecBox from '../components/RecBox/RecBox'
 import './HomePage.css'
 
 function HomePage() {
@@ -24,6 +25,7 @@ function HomePage() {
   return (
     <main className="home-page">
       <BrowseAllButton />
+      <RecBox />
       {/* teammates: hero heading, description and buttons go here */}
       {/* key makes Swiper rebuild cleanly when real movies arrive */}
       <MovieCarousel key={source} movies={movies} />
