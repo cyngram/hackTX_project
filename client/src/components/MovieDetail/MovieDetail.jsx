@@ -1,6 +1,7 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useCollection } from '../../Context/CollectionsContext'
+import { fetchProviders, fetchShowtimes, isInTheaters, isRealMovie } from '../../api/movies'
 import './MovieDetail.css'
 
 // Shared movie popup, used by MovieCarousel and RecBox.
@@ -24,6 +25,43 @@ function MovieDetail({ movie, onClose }) {
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
   }, [onClose])
+
+  // ---------- streaming services (loads as soon as the popup opens) ----------
+  const [providers, setProviders] = useState(null)
+  useEffect(() => {
+    if (!isRealMovie(movie)) return
+    let cancelled = false
+    fetchProviders(movie.id)
+      .then((data) => !cancelled && setProviders(data))
+      .catch((err) => console.warn('No providers:', err.message))
+    return () => {
+      cancelled = true
+    }
+  }, [movie])
+
+  // ---------- showtimes (only on button click, to save SerpApi searches) ----------
+  const [showtimes, setShowtimes] = useState(null) // null = not asked yet
+  const [showtimeStatus, setShowtimeStatus] = useState('idle') // idle | loading | error
+  const [dayIndex, setDayIndex] = useState(0)
+
+  function loadShowtimes() {
+    setShowtimeStatus('loading')
+    fetchShowtimes(movie.title)
+      .then((days) => {
+        setShowtimes(days)
+        setDayIndex(0)
+        setShowtimeStatus('idle')
+      })
+      .catch(() => setShowtimeStatus('error'))
+  }
+
+  const streamList = providers?.stream?.length
+    ? providers.stream
+    : providers?.rent?.length
+      ? providers.rent
+      : []
+  const streamLabel = providers?.stream?.length ? 'Stream on' : 'Rent on'
+  const day = showtimes?.[dayIndex]
 
   const { hasMovie, toggleMovie, isFavorite, toggleFavorite, isSaved, toggleSaved } =
     useCollection()
@@ -78,11 +116,86 @@ function MovieDetail({ movie, onClose }) {
               onClick={() => toggleSaved(movie)}
               aria-pressed={saved}
             >
-              {saved ? '🔖 Saved' : '🔖 Save for later'}
+              {saved ? '⛉ Saved' : '⛉ Save for later'}
             </button>
           </div>
 
-          {platform && <span className="detail-platform">{platform}</span>}
+          {platform && !streamList.length && <span className="detail-platform">{platform}</span>}
+
+          {/* where to watch (TMDB, data from JustWatch) */}
+          {streamList.length > 0 && (
+            <div className="detail-providers">
+              <span className="detail-subhead">{streamLabel}</span>
+              <div className="detail-provider-list">
+                {streamList.slice(0, 6).map((p) => (
+                  <a
+                    key={p.id}
+                    href={providers.link}
+                    target="_blank"
+                    rel="noreferrer"
+                    title={p.name}
+                  >
+                    <img src={p.logo} alt={p.name} />
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* showtimes for newer movies */}
+          {isInTheaters(movie) && (
+            <div className="detail-showtimes">
+              {showtimes === null ? (
+                <button
+                  className="detail-showtime-btn"
+                  onClick={loadShowtimes}
+                  disabled={showtimeStatus === 'loading'}
+                >
+                  {showtimeStatus === 'loading'
+                    ? 'Finding showtimes…'
+                    : showtimeStatus === 'error'
+                      ? "Couldn't load showtimes. Try again?"
+                      : ' ⤷ Showtimes near Austin'}
+                </button>
+              ) : showtimes.length === 0 ? (
+                <p className="detail-stars">No showtimes found near Austin right now.</p>
+              ) : (
+                <>
+                  <span className="detail-subhead">Showtimes near Austin</span>
+                  <div className="detail-days">
+                    {showtimes.slice(0, 4).map((d, i) => (
+                      <button
+                        key={d.day}
+                        className={i === dayIndex ? 'is-on' : ''}
+                        onClick={() => setDayIndex(i)}
+                      >
+                        {d.day}
+                      </button>
+                    ))}
+                  </div>
+                  {day?.theaters.slice(0, 5).map((t) => (
+                    <div key={t.name} className="detail-theater">
+                      <strong>{t.name}</strong>
+                      {t.distance && <span className="detail-theater-meta">{t.distance}</span>}
+                      <div className="detail-times">
+                        {t.times.map((s, i) => (
+                          <a
+                            key={i}
+                            href={t.link || undefined}
+                            target="_blank"
+                            rel="noreferrer"
+                            title={s.type}
+                          >
+                            {s.time}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
+          )}
 
           {movie.stars?.length > 0 && (
             <p className="detail-stars">Starring {movie.stars.join(', ')}</p>

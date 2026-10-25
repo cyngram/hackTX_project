@@ -137,6 +137,123 @@
   cursor: pointer;
 }
 
+/* ---------- where to watch ---------- */
+.detail-subhead {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #aaa;
+}
+
+.detail-provider-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.detail-provider-list img {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: block;
+  transition: transform 0.15s ease;
+}
+
+.detail-provider-list a:hover img {
+  transform: scale(1.1);
+}
+
+/* ---------- showtimes ---------- */
+.detail-showtimes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detail-showtime-btn {
+  align-self: flex-start;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: transparent;
+  color: #fff;
+  font-family: system-ui, sans-serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.detail-showtime-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
+}
+
+.detail-showtime-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.detail-days {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+}
+
+.detail-days button {
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  color: #fff;
+  font-size: 0.78rem;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.detail-days button.is-on {
+  background: #aa3bff;
+  border-color: #aa3bff;
+}
+
+.detail-theater {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.detail-theater strong {
+  font-size: 0.9rem;
+}
+
+.detail-theater-meta {
+  margin-left: 8px;
+  font-size: 0.75rem;
+  color: #aaa;
+}
+
+.detail-times {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.detail-times a {
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  font-size: 0.78rem;
+  text-decoration: none;
+}
+
+.detail-times a:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
 @media (max-width: 700px) {
   .detail-box {
     flex-direction: column;

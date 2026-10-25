@@ -174,6 +174,79 @@ Reply ONLY with JSON in this exact shape:
   res.json({ message: picks.message, movies: movies });
 });
 
+//showtimessss
+
+// ---------- where to stream (TMDB watch providers) ----------
+// GET /api/movies/550/providers → { link, stream: [...], rent: [...], buy: [...] }
+app.get("/api/movies/:id/providers", async (req, res) => {
+  const url = `https://api.themoviedb.org/3/movie/${encodeURIComponent(req.params.id)}/watch/providers?api_key=${process.env.TMDB_KEY}`;
+  const response = await fetch(url);
+  if (!response.ok) return res.status(response.status).json({ error: "TMDB lookup failed" });
+  const data = await response.json();
+  const us = data.results?.US || {}; // only US services
+
+  // TMDB gives logos as paths → turn them into full image urls
+  const clean = (list = []) =>
+    list.map((p) => ({
+      id: p.provider_id,
+      name: p.provider_name,
+      logo: `https://image.tmdb.org/t/p/w92${p.logo_path}`,
+    }));
+
+  res.json({
+    link: us.link || null, // TMDB page that links out to each service
+    stream: clean(us.flatrate),
+    rent: clean(us.rent),
+    buy: clean(us.buy),
+  });
+});
+
+// ---------- showtimes (SerpApi Google results) ----------
+// GET /api/showtimes?title=Wicked → [{ day, theaters: [{ name, address, link, times: [...] }] }]
+// small cache so we don't burn SerpApi searches (free plan has a monthly limit)
+const showtimeCache = new Map(); // title → { at, data }
+const CACHE_MS = 30 * 60 * 1000; // 30 minutes
+
+app.get("/api/showtimes", async (req, res) => {
+  const title = req.query.title;
+  if (!title) return res.status(400).json({ error: "title is required" });
+
+  const key = title.toLowerCase();
+  const cached = showtimeCache.get(key);
+  if (cached && Date.now() - cached.at < CACHE_MS) return res.json(cached.data);
+
+  const params = new URLSearchParams({
+    engine: "google",
+    q: `${title} showtimes`,
+    location: "Austin, Texas, United States",
+    hl: "en",
+    gl: "us",
+    api_key: process.env.SERPAPI_KEY,
+  });
+  const response = await fetch(`https://serpapi.com/search.json?${params}`, {
+    signal: AbortSignal.timeout(20000),
+  });
+  const data = await response.json();
+  if (data.error) throw new Error("SerpApi: " + data.error);
+
+  // reshape: each day → theaters → flat list of times
+  const days = (data.showtimes || []).map((d) => ({
+    day: d.day,
+    theaters: (d.theaters || []).map((t) => ({
+      name: t.name,
+      address: t.address || "",
+      distance: t.distance || "",
+      link: t.link || null,
+      times: (t.showing || []).flatMap((s) =>
+        (s.time || []).map((time) => ({ time, type: s.type || "" })),
+      ),
+    })),
+  }));
+
+  showtimeCache.set(key, { at: Date.now(), data: days });
+  res.json(days);
+});
+
 //generic error handler for any unhandled errors
 app.use((err, req, res, next) => {
   console.error(err.stack);
