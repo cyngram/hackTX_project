@@ -9,3 +9,17 @@
   display: block;
   border-radius: 8px;
 }
+
+.movie-carousel .swiper {
+  padding: 50px 0;
+}
+
+.poster-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 8px;
+}
+
+.poster-card:hover {
+  transform: translateZ(60px) scale(1.1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+}

@@ -33,10 +33,12 @@ function MovieCarousel() {
           slideShadows: true,
         }}
       >
-        {movies.map((movie) => (
-          <SwiperSlide key={movie.id}>
-            <img src={movie.poster} alt={movie.title} />
-          </SwiperSlide>
+{movies.map((movie) => (
+  <SwiperSlide key={movie.id}>
+   <div className="poster-card">
+    <img src={movie.poster} alt={movie.title} />
+  </div>
+</SwiperSlide>
         ))}
       </Swiper>
     </div>
