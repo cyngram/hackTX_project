@@ -1,0 +1,17 @@
+.profile-page {
+  padding: 40px 24px;
+  color: #fff;
+}
+
+.profile-page p {
+  margin-bottom: 12px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.profile-soon {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  font-size: 0.85rem;
+}
