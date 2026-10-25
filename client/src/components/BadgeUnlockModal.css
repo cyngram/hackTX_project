@@ -1,0 +1,84 @@
+.badge-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5, 6, 20, 0.75);
+  animation: badgeFade 0.3s ease;
+}
+
+.badge-modal {
+  width: min(420px, 90vw);
+  padding: 32px 28px;
+  text-align: center;
+  color: #fff;
+  border-radius: 20px;
+  background: linear-gradient(160deg, #2a2f6b, #0f1226);
+  border: 2px solid gold;
+  box-shadow: 0 0 40px rgba(255, 215, 0, 0.35);
+  animation: badgePop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+.badge-modal-kicker {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: gold;
+}
+
+.badge-modal-emoji {
+  margin: 12px 0;
+  font-size: 4.5rem;
+}
+
+.badge-modal h2 {
+  margin: 0 0 10px;
+}
+
+.badge-modal-message {
+  font-size: 1.05rem;
+  line-height: 1.4;
+  font-style: italic;
+  color: #fff3b0;
+}
+
+.badge-modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 22px;
+}
+
+.badge-modal-actions a,
+.badge-modal-actions button {
+  padding: 9px 18px;
+  border: none;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.badge-modal-actions a {
+  background: #4f46e5;
+  color: #fff;
+}
+
+.badge-modal-actions button {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+@keyframes badgeFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes badgePop {
+  from { transform: scale(0.6); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}

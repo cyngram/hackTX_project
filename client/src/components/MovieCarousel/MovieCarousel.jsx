@@ -5,11 +5,11 @@ import 'swiper/css'
 import 'swiper/css/effect-coverflow'
 import PosterCard from '../PosterCard/PosterCard'
 import './MovieCarousel.css'
+import { useCollection } from '../../Context/CollectionsContext'
 
 const COVERFLOW = {
   rotate: 20,
   stretch: 0,
-  depth: 150,
   modifier: 1,
   slideShadows: false,
 }
@@ -26,6 +26,7 @@ function formatDate(dateString) {
 
 function MovieCarousel({ movies = [] }) {
   const [selected, setSelected] = useState(null)
+  const { hasMovie, toggleMovie } = useCollection()
 
   function openMovie(movie) {
     setSelected(movie)
@@ -72,6 +73,19 @@ function MovieCarousel({ movies = [] }) {
                 <p className="detail-stars">Starring {selected.stars.join(', ')}</p>
               )}
               {selected.description && <p>{selected.description}</p>}
+
+              <button
+                type="button"
+                className={`detail-collect ${hasMovie(selected.id) ? 'is-collected' : ''}`}
+                onClick={() => {
+                  toggleMovie(selected)
+                  closeMovie()
+                }}
+              >
+                {hasMovie(selected.id)
+                  ? '✓ In your collection (remove)'
+                  : '+ Add to collection (watched)'}
+              </button>
             </div>
           </div>
         </div>
