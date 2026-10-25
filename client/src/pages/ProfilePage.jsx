@@ -1,182 +1,169 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { BADGES, BADGE_THRESHOLD, countGenre, getGenres } from '../utils/badges'
-import './ProfilePage.css'
+import { BADGES, BADGE_THRESHOLD, countGenre } from '../utils/badges'
 import { useCollection } from '../Context/CollectionsContext'
-
+import MovieDetail from '../components/MovieDetail/MovieDetail'
+import './ProfilePage.css'
+ 
+const FAVORITE_SLOTS = 4 // Letterboxd-style: 4 favorite posters up top
+ 
+function formatShortDate(iso) {
+  if (!iso) return ''
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+}
+ 
 function ProfilePage() {
-  const {
-    username,
-    setUsername,
-    collection,
-    badges,
-    toggleMovie,
-    resetProfile
-  } = useCollection()
-
-  const unlockedCount = BADGES.filter(
-    (badge) => badges[badge.genre]
-  ).length
-
+  const { username, setUsername, collection, favorites, watchlist, badges, resetProfile } =
+    useCollection()
+  const [selected, setSelected] = useState(null) // movie open in the popup
+ 
+  const unlockedCount = BADGES.filter((b) => badges[b.genre]).length
+ 
+  // newest first
+  const recent = [...collection].sort(
+    (a, b) => new Date(b.watchedAt || 0) - new Date(a.watchedAt || 0)
+  )
+ 
+  // fill empty favorite slots with placeholders
+  const favSlots = [...favorites.slice(0, FAVORITE_SLOTS)]
+  while (favSlots.length < FAVORITE_SLOTS) favSlots.push(null)
+ 
   function handleReset() {
-    if (window.confirm('Clear your watched films and badges?')) {
-      resetProfile()
-    }
+    if (window.confirm('Clear your watched films, favorites and badges?')) resetProfile()
   }
-
+ 
   return (
     <main className="profile-page">
-
-      <div className="profile-intro">
-        <p className="profile-eyebrow">YOUR CINEMATIC JOURNEY</p>
-        <h1>Movie Card Collection</h1>
-        <p>Collect movies, complete genre challenges, and unlock badges!</p>
-      </div>
-
-      <section className="profile-summary">
+      {/* ---------- header ---------- */}
+      <section className="profile-header">
         <div className="profile-identity">
           <span className="profile-avatar">🎬</span>
-          <div>
-            <label htmlFor="profile-username">Collector name</label>
-            <input
-              id="profile-username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              maxLength={32}
-            />
-          </div>
+          <input
+            aria-label="Your name"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            maxLength={32}
+          />
         </div>
-
-        <div className="profile-numbers">
+ 
+        <div className="profile-stats">
           <div>
             <strong>{collection.length}</strong>
-            <span>Movies collected</span>
+            <span>Watched</span>
           </div>
           <div>
-            <strong>{unlockedCount}/{BADGES.length}</strong>
-            <span>Badges unlocked</span>
+            <strong>{favorites.length}</strong>
+            <span>Favorites</span>
+          </div>
+          <div>
+            <strong>{watchlist.length}</strong>
+            <span>Watchlist</span>
+          </div>
+          <div>
+            <strong>
+              {unlockedCount}/{BADGES.length}
+            </strong>
+            <span>Badges</span>
           </div>
         </div>
       </section>
-
+ 
+      {/* ---------- 1. favorites ---------- */}
       <section className="profile-section">
-        <h2>Your Genre Badges</h2>
-        <p>Collect {BADGE_THRESHOLD} movies in a genre to unlock its badge!</p>
-
-        <div className="profile-badge-grid">
+        <h2 className="profile-label">Favorite Films</h2>
+        <div className="profile-favorites">
+          {favSlots.map((movie, i) =>
+            movie ? (
+              <button
+                key={movie.id}
+                className="profile-poster"
+                onClick={() => setSelected(movie)}
+                title={movie.title}
+              >
+                <img src={movie.poster} alt={movie.title} />
+              </button>
+            ) : (
+              <Link key={`empty-${i}`} to="/browse" className="profile-poster is-empty">
+                <span>☆</span>
+              </Link>
+            )
+          )}
+        </div>
+        {favorites.length === 0 && (
+          <p className="profile-hint">Open any movie and tap ☆ Favorite to pin it here.</p>
+        )}
+        {favorites.length > FAVORITE_SLOTS && (
+          <p className="profile-hint">+{favorites.length - FAVORITE_SLOTS} more favorites</p>
+        )}
+      </section>
+ 
+      {/* ---------- 2. badges ---------- */}
+      <section className="profile-section">
+        <h2 className="profile-label">Badges</h2>
+        <div className="profile-badges">
           {BADGES.map((badge) => {
-            const count = countGenre(collection, badge.genre)
-            const unlocked = Boolean(badges[badge.genre])
-            const progress = Math.min(count, BADGE_THRESHOLD)
-
+            const count = Math.min(countGenre(collection, badge.genre), BADGE_THRESHOLD)
+            const earned = badges[badge.genre]
             return (
               <div
                 key={badge.genre}
-                className={`profile-badge ${unlocked ? 'is-unlocked' : 'is-locked'}`}
+                className={`profile-badge ${earned ? 'is-earned' : ''}`}
+                title={earned ? earned.message : `Watch ${BADGE_THRESHOLD - count} more ${badge.genre} movies`}
               >
-                <div className="profile-badge-emoji">
-                  {badge.emoji}
-                </div>
-
-                <span className="profile-badge-genre">
-                  {badge.genre}
-                </span>
-
-                <h3>{badge.name}</h3>
-
-                {unlocked ? (
-                  <p className="profile-badge-message">
-                    {badges[badge.genre].message}
-                  </p>
-                ) : (
-                  <p className="profile-badge-message">
-                    {BADGE_THRESHOLD - progress} more movies to unlock!
-                  </p>
-                )}
-
+                <span className="profile-badge-emoji">{badge.emoji}</span>
+                <strong>{badge.name}</strong>
+                <span className="profile-badge-genre">{badge.genre}</span>
                 <div className="profile-progress">
-                  <div
-                    style={{
-                      width: `${(progress / BADGE_THRESHOLD) * 100}%`
-                    }}
-                  />
+                  <div style={{ width: `${(count / BADGE_THRESHOLD) * 100}%` }} />
                 </div>
-
                 <span className="profile-badge-count">
-                  {unlocked
-                    ? '🏆 BADGE EARNED'
-                    : `${progress} / ${BADGE_THRESHOLD} movies`}
+                  {earned ? '🏆 Earned' : `${count} / ${BADGE_THRESHOLD}`}
                 </span>
               </div>
             )
           })}
         </div>
       </section>
-
+ 
+      {/* ---------- 3. recently watched ---------- */}
       <section className="profile-section">
-        <div className="profile-section-heading">
-          <div>
-            <h2>Your Film Cards</h2>
-            <p>Your collection of watched movies.</p>
-          </div>
-
-          <Link className="profile-browse-link" to="/browse">
-            + Collect More
-          </Link>
+        <div className="profile-row-heading">
+          <h2 className="profile-label">Recently Watched</h2>
+          <Link to="/browse">+ Find more</Link>
         </div>
-
-        {collection.length === 0 ? (
+ 
+        {recent.length === 0 ? (
           <div className="profile-empty">
             <span>🍿</span>
-            <h3>Your collection is empty!</h3>
-            <p>Start watching and collecting movies to fill your shelf.</p>
+            <p>Nothing here yet. Mark a movie as watched to start your diary.</p>
             <Link to="/browse">Browse movies</Link>
           </div>
         ) : (
-          <div className="profile-movie-grid">
-            {collection.map((movie, index) => (
-              <div className="profile-movie-card" key={movie.id}>
-                <div className="profile-movie-art">
-                  {movie.poster ? (
-                    <img src={movie.poster} alt={movie.title} />
-                  ) : (
-                    <span>🎞️</span>
-                  )}
-
-                  <span className="profile-movie-number">
-                    #{String(index + 1).padStart(3, '0')}
-                  </span>
+          <div className="profile-recent">
+            {recent.map((movie) => (
+              <button
+                key={movie.id}
+                className="profile-recent-item"
+                onClick={() => setSelected(movie)}
+              >
+                <div className="profile-poster">
+                  {movie.poster ? <img src={movie.poster} alt={movie.title} /> : <span>🎞️</span>}
                 </div>
-
-                <div className="profile-movie-details">
-                  <h3>{movie.title}</h3>
-
-                  <p>
-                    {getGenres(movie).slice(0, 2).join(' · ') || 'Movie'}
-                    {movie.year ? ` · ${movie.year}` : ''}
-                  </p>
-
-                  <button
-                    type="button"
-                    onClick={() => toggleMovie(movie)}
-                  >
-                    Remove Card
-                  </button>
-                </div>
-              </div>
+                <span className="profile-recent-title">{movie.title}</span>
+                <span className="profile-recent-date">{formatShortDate(movie.watchedAt)}</span>
+              </button>
             ))}
           </div>
         )}
       </section>
-
-      <button
-        type="button"
-        className="profile-reset"
-        onClick={handleReset}
-      >
-        Reset My Collection
+ 
+      <button type="button" className="profile-reset" onClick={handleReset}>
+        Reset profile
       </button>
+ 
+      {selected && <MovieDetail movie={selected} onClose={() => setSelected(null)} />}
     </main>
   )
 }
-
+ 
 export default ProfilePage
