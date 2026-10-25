@@ -1,46 +1,51 @@
 import { useState } from "react";
 import "./RecBox.css";
+import MovieDetail from "../MovieDetail/MovieDetail";
 
 function RecBox() {
   const [prompt, setPrompt] = useState("");
   const [reply, setReply] = useState(null); //server's answers
   const [loading, setLoading] = useState(false);
+  const [selected, setSelected] = useState(null); //tracks which movie is selected
 
   async function handleSubmit(e) {
-  e.preventDefault();
-  if (!prompt.trim()) return; // ignore empty prompts
+    e.preventDefault();
+    if (!prompt.trim()) return; // ignore empty prompts
 
-  setLoading(true);
-  setReply(null); // clear the last answer
+    setLoading(true);
+    setReply(null); // clear the last answer
 
-  try {
-    const res = await fetch("/api/recommendations", {
-      method: "POST",
-      signal: AbortSignal.timeout(20000),
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: prompt }),
-    });
+    try {
+      const res = await fetch("/api/recommendations", {
+        method: "POST",
+        signal: AbortSignal.timeout(20000),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: prompt }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!res.ok) {
-      // server answered with an error (400, 500, etc.)
-      setReply({ error: data.error || "Something went wrong" });
-      return; 
+      if (!res.ok) {
+        // server answered with an error (400, 500, etc.)
+        setReply({ error: data.error || "Something went wrong" });
+        return;
+      }
+
+      setReply(data);
+    } catch (err) {
+      // network failed, server is down, or it took longer than 20 seconds
+      console.error(err);
+      setReply({
+        error:
+          err.name === "TimeoutError"
+            ? "That took too long"
+            : "Couldn't reach the server",
+      });
+    } finally {
+      // runs no matter what, so the button never gets stuck on "Thinking..."
+      setLoading(false);
     }
-
-    setReply(data);
-  } catch (err) {
-    // network failed, server is down, or it took longer than 20 seconds
-    console.error(err);
-    setReply({
-      error: err.name === "TimeoutError" ? "That took too long" : "Couldn't reach the server",
-    });
-  } finally {
-    // runs no matter what, so the button never gets stuck on "Thinking..."
-    setLoading(false);
   }
-}
 
   return (
     <div className="rec-box">
@@ -67,7 +72,8 @@ function RecBox() {
 
           <div className="rec-movies">
             {reply.movies.map((movie) => (
-              <div className="rec-movie" key={movie.id}>
+              <div className="rec-movie" key={movie.id} onClick={() => setSelected(movie)}>
+                
                 <img src={movie.poster} alt={movie.title} />
                 <h3>
                   {movie.title} <span>({movie.year})</span>
@@ -78,6 +84,9 @@ function RecBox() {
             ))}
           </div>
         </div>
+      )}
+      {selected && (
+        <MovieDetail movie={selected} onClose={() => setSelected(null)} />
       )}
     </div>
   );

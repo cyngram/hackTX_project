@@ -4,6 +4,7 @@ import { EffectCoverflow } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/effect-coverflow'
 import PosterCard from '../PosterCard/PosterCard'
+import MovieDetail from '../MovieDetail/MovieDetail'
 import './MovieCarousel.css'
 import { useCollection } from '../../Context/CollectionsContext'
 
@@ -12,16 +13,6 @@ const COVERFLOW = {
   stretch: 0,
   modifier: 1,
   slideShadows: false,
-}
-
-function formatDate(dateString) {
-  if (!dateString) return 'TBA'
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    timeZone: 'UTC',
-  })
 }
 
 function MovieCarousel({ movies = [] }) {
@@ -58,38 +49,7 @@ function MovieCarousel({ movies = [] }) {
         </Swiper>
       </div>
 
-      {selected && (
-        <div className="detail-overlay" onClick={closeMovie}>
-          <div className="detail-box" onClick={(e) => e.stopPropagation()}>
-            <img src={selected.poster} alt={selected.title} />
-            <div className="detail-info">
-              <button className="detail-close" onClick={closeMovie}>✕</button>
-              <h2>{selected.title}</h2>
-              <p className="detail-meta">Released {formatDate(selected.releaseDate)}</p>
-              {selected.platform && (
-                <span className="detail-platform">{selected.platform}</span>
-              )}
-              {selected.stars?.length > 0 && (
-                <p className="detail-stars">Starring {selected.stars.join(', ')}</p>
-              )}
-              {selected.description && <p>{selected.description}</p>}
-
-              <button
-                type="button"
-                className={`detail-collect ${hasMovie(selected.id) ? 'is-collected' : ''}`}
-                onClick={() => {
-                  toggleMovie(selected)
-                  closeMovie()
-                }}
-              >
-                {hasMovie(selected.id)
-                  ? '✓ In your collection (remove)'
-                  : '+ Add to collection (watched)'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {selected && <MovieDetail movie={selected} onClose={closeMovie} />}
     </>
   )
 }
