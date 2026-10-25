@@ -8,20 +8,18 @@ function RecBox() {
   const [reply, setReply] = useState(null); //server's answers
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(null); //tracks which movie is selected
+  const [lastPrompt, setLastPrompt] = useState(""); // tracks the last prompt sent to the server
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    if (!prompt.trim()) return; // ignore empty prompts
-
+  async function askGemini(text) {
     setLoading(true);
-    setReply(null); // clear the last answer
+    setReply(null);
 
     try {
       const res = await fetch("/api/recommendations", {
         method: "POST",
         signal: AbortSignal.timeout(20000),
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: prompt }),
+        body: JSON.stringify({ prompt: text }), // ← was `prompt`, now `text`
       });
 
       const data = await res.json();
@@ -46,6 +44,33 @@ function RecBox() {
       // runs no matter what, so the button never gets stuck on "Thinking..."
       setLoading(false);
     }
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    if (!prompt.trim()) return;
+    setLastPrompt(prompt); // remember what they originally asked
+    askGemini(prompt);
+  }
+
+  const REFINES = [
+    { label: "Something lighter", ask: "Make it lighter and more feel-good." },
+    { label: "More intense", ask: "Make it more intense and gripping." },
+    {
+      label: "Surprise me",
+      ask: "Pick something unexpected I probably haven't heard of.",
+    },
+  ];
+
+  function refine(instruction) {
+    const shown = reply.movies.map((m) => m.title).join(", ");
+    askGemini(
+      `${lastPrompt}. ${instruction} Don't suggest these again: ${shown}.`,
+    );
+  }
+
+  function moreLike(movie) {
+    refine(`Give me movies similar to ${movie.title}.`);
   }
 
   return (
@@ -94,6 +119,26 @@ function RecBox() {
                 <p className="rec-reason">{movie.reason}</p>
               </div>
             ))}
+          </div>
+          <div className="rec-refine">
+            <span>Not quite?</span>
+            {REFINES.map((r) => (
+              <button
+                type="button"
+                key={r.label}
+                onClick={() => refine(r.ask)}
+                disabled={loading}
+              >
+                {r.label}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => moreLike(reply.movies[0])}
+              disabled={loading}
+            >
+              More like {reply.movies[0]?.title}
+            </button>
           </div>
         </div>
       )}

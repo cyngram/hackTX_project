@@ -176,6 +176,32 @@
 .mascot-bounce {
   animation: poppyBounce 0.6s ease-in-out infinite alternate;
 }
+.rec-refine {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.rec-refine span {
+  color: rgba(255, 255, 255, 0.7);
+  margin-right: 4px;
+}
+
+/* outlined chips instead of the big gradient button */
+.rec-box .rec-refine button {
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-weight: 400;
+  font-size: 0.85rem;
+}
+
+.rec-box .rec-refine button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+}
 
 @keyframes poppyBounce {
   from { transform: scale(1.12); }
