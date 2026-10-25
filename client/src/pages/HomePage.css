@@ -8,7 +8,7 @@
 }
 
 .home-hero {
-  padding: 60px 20px 0;
+  padding: 60px 10px 0;
   text-align: center;
 }
 
@@ -20,10 +20,11 @@
 }
 
 .home-hero p {
-  margin: 0 auto;
+  margin: 30px auto;
   max-width: 520px;
   font-family: system-ui, sans-serif;
   font-size: 1.1rem;
+  
   color: rgba(255, 255, 255, 0.8);
 }
 

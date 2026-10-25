@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./RecBox.css";
 import MovieDetail from "../MovieDetail/MovieDetail";
+import Mascot from "../Mascot/Mascot"; // from inside another component folder
 
 function RecBox() {
   const [prompt, setPrompt] = useState("");
@@ -49,17 +50,25 @@ function RecBox() {
 
   return (
     <div className="rec-box">
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Need help choosing a film?"
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-        />
-        <button type="submit" disabled={loading}>
-          {loading ? "Thinking..." : "Get Picks"}
-        </button>
-      </form>
+      <div className="rec-row">
+        <Mascot
+          size={120}
+          mood={loading ? "thinking" : "happy"}
+          className={loading ? "mascot-bounce" : ""}
+        />{" "}
+        {/* render the mascot with a size of 100px */}
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            placeholder="Need help choosing a film?"
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+          />
+          <button type="submit" disabled={loading}>
+            {loading ? "Thinking..." : "Get Picks"}
+          </button>
+        </form>
+      </div>
       {/* if something went wrong */}
       {reply?.error && (
         <p className="rec-error">Couldn't get recommendations, try again!</p>
@@ -72,8 +81,11 @@ function RecBox() {
 
           <div className="rec-movies">
             {reply.movies.map((movie) => (
-              <div className="rec-movie" key={movie.id} onClick={() => setSelected(movie)}>
-                
+              <div
+                className="rec-movie"
+                key={movie.id}
+                onClick={() => setSelected(movie)}
+              >
                 <img src={movie.poster} alt={movie.title} />
                 <h3>
                   {movie.title} <span>({movie.year})</span>

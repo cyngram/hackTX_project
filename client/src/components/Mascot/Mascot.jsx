@@ -1,11 +1,18 @@
-import mascotImg from '../../assets/poppy.png'
+import poppyIcon from '../../assets/poppy-icon.png'
+import poppyThink from '../../assets/poppy-think.png'
 import './Mascot.css'
 
-function Mascot({ size = 64, className = '' }) {
+// lookup table: mood name → image
+const IMAGES = {
+  happy: poppyIcon,
+  thinking: poppyThink,
+}
+
+function Mascot({ mood = 'happy', size = 100, className = '' }) {
   return (
     <img
-      src={mascotImg}
-      alt="Poppy the mascot"
+      src={IMAGES[mood]}
+      alt={mood === 'thinking' ? 'Poppy thinking' : 'Poppy the mascot'}
       width={size}
       height={size}
       className={`mascot ${className}`}

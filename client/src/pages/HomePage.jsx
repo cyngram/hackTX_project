@@ -26,6 +26,7 @@ function HomePage() {
       <section className="home-hero">
         <h1>Can't decide what to watch?</h1>
         <p>Tell Poppy your mood and get movie picks made just for you.</p>
+      
       </section>
 
       <RecBox />
