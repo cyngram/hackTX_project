@@ -1,25 +1,25 @@
+.movie-carousel {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
 
+.movie-carousel .swiper {
+  padding: 50px 0 60px;
+}
 
 .movie-carousel .swiper-slide {
   width: 220px;
 }
 
-.movie-carousel img {
-  width: 100%;
-  display: block;
-  border-radius: 8px;
+@media (max-width: 900px) {
+  .movie-carousel .swiper-slide {
+    width: 180px;
+  }
 }
 
-.movie-carousel .swiper {
-  padding: 50px 0;
-}
-
-.poster-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border-radius: 8px;
-}
-
-.poster-card:hover {
-  transform: translateZ(60px) scale(1.1);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+@media (max-width: 600px) {
+  .movie-carousel .swiper-slide {
+    width: 140px;
+  }
 }

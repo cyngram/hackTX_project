@@ -1,12 +1,15 @@
-import MovieCarousel from './components/MovieCarousel'
-import RecBox from './components/RecBox/RecBox'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import HomePage from './pages/HomePage'
+import BrowsePage from './pages/BrowsePage'
 
 function App() {
   return (
-    <div>
-      <MovieCarousel />
-      <RecBox />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/browse" element={<BrowsePage />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 

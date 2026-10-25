@@ -1,44 +1,59 @@
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { useState, useEffect } from 'react'
-import fakeMovies from '../data/fakeMovies'
-import { EffectCoverflow } from 'swiper/modules'
+import { EffectCoverflow, Autoplay } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/effect-coverflow'
+import PosterCard from './PosterCard'
 import './MovieCarousel.css'
 
-function MovieCarousel() {
-  const [movies, setMovies] = useState(fakeMovies)
-  useEffect(() => {
-    fetch('/api/movies')
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) setMovies(data)
-      })
-      .catch(() => {})
-  }, [])
+// paste your tuned values here
+const COVERFLOW = {
+  rotate: 20,
+  stretch: 0,
+  depth: 150,
+  modifier: 1,
+  slideShadows: false,
+}
+
+function MovieCarousel({ movies = [], autoplay = true }) {
+  function handleClick(event) {
+    const card = event.target.closest('.poster-card')
+    if (!card) return
+    card.classList.toggle('is-flipped')
+
+    if (!autoplay) return
+    const container = event.currentTarget
+    const swiper = container.querySelector('.swiper')?.swiper
+    if (!swiper) return
+
+    if (container.querySelector('.poster-card.is-flipped')) {
+      swiper.autoplay.stop()
+    } else {
+      swiper.autoplay.start()
+    }
+  }
+
   return (
-    <div className="movie-carousel">
+    <div className="movie-carousel" onClick={handleClick}>
       <Swiper
-        modules={[EffectCoverflow]}
+        modules={[EffectCoverflow, Autoplay]}
         effect="coverflow"
-        grabCursor={true}
-        centeredSlides={true}
+        coverflowEffect={COVERFLOW}
+        grabCursor
+        centeredSlides
         slidesPerView="auto"
-        initialSlide={2}
-        coverflowEffect={{
-          rotate: 30,
-          stretch: 0,
-          depth: 150,
-          modifier: 1,
-          slideShadows: true,
-        }}
+        loop
+        loopAdditionalSlides={2}
+        speed={1000}
+        autoplay={
+          autoplay
+            ? { delay: 2500, disableOnInteraction: false, pauseOnMouseEnter: true }
+            : false
+        }
       >
-{movies.map((movie) => (
-  <SwiperSlide key={movie.id}>
-   <div className="poster-card">
-    <img src={movie.poster} alt={movie.title} />
-  </div>
-</SwiperSlide>
+        {movies.map((movie) => (
+          <SwiperSlide key={movie.id}>
+            <PosterCard movie={movie} />
+          </SwiperSlide>
         ))}
       </Swiper>
     </div>

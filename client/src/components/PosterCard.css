@@ -1,0 +1,118 @@
+.poster-card {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  border-radius: 8px;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.poster-card:hover {
+  transform: translateZ(60px) scale(1.1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+}
+
+.poster-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.7s ease;
+}
+
+.poster-card.is-flipped .poster-card-inner {
+  transform: rotateY(180deg);
+}
+
+.poster-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.poster-front img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.poster-back {
+  transform: rotateY(180deg);
+  box-sizing: border-box;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+  color: #fff;
+  background: linear-gradient(160deg, #1b1f45, #0f1226);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.poster-back h3 {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.poster-meta {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #aeb2d6;
+}
+
+.poster-label {
+  margin: 6px 0 0;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #aeb2d6;
+}
+
+.poster-back ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.8rem;
+}
+
+.poster-back li::before {
+  content: '★ ';
+  color: gold;
+}
+
+.poster-platform {
+  align-self: flex-start;
+  margin-top: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #4f46e5;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.poster-description {
+  margin: 6px 0 0;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: #cfd2ee;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (max-width: 600px) {
+  .poster-back {
+    padding: 10px;
+  }
+  .poster-description {
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+}

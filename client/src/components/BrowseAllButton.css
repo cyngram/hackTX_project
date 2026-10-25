@@ -1,0 +1,17 @@
+.browse-all-btn {
+  position: fixed;
+  top: 16px;
+  left: 150px;
+  z-index: 100;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: #4f46e5;
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.browse-all-btn:hover {
+  background: #6258f0;
+}
